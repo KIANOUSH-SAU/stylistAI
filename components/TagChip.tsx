@@ -46,9 +46,7 @@ export default function TagChip({ label, selected = false, onToggle }: Props) {
 				<Text
 					style={[
 						styles.label,
-						isSelected
-							? { color: "#0b0c0f", fontWeight: "700" }
-							: {},
+						isSelected ? { color: "#fff", fontWeight: "700" } : {},
 					]}
 				>
 					{label}
@@ -65,7 +63,9 @@ const styles = StyleSheet.create({
 		borderRadius: 999,
 		margin: 6,
 	},
-	chipDefault: { backgroundColor: "#111214" },
-	chipSelected: { backgroundColor: "#ffd166" },
+	chipDefault: {
+		backgroundColor: "#09090b",
+	},
+	chipSelected: { backgroundColor: "#7c3aed" },
 	label: { color: "#d1d5db" },
 });

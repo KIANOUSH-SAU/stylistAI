@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -46,8 +45,7 @@ const faceShapes = [
 ];
 
 export default function CurrentLookScreen() {
-	const navigation = useNavigation();
-	const [step, setStep] = useState(1); // 1..3
+	const [step, setStep] = useState(1);
 	const [selectedFace, setSelectedFace] = useState<string | null>(null);
 	const scale = useRef(new Animated.Value(1)).current;
 	const router = useRouter();
@@ -70,94 +68,112 @@ export default function CurrentLookScreen() {
 	}
 
 	return (
-		<View style={styles.container}>
+		<>
 			<View style={styles.header}>
 				<Text style={styles.headerText}>Current Look</Text>
 				<Text style={styles.progressText}>{step}/3</Text>
 			</View>
-
-			<View style={styles.progressBar}>
-				<View
-					style={[
-						styles.progressFill,
-						{ width: `${(step / 3) * 100}%` },
-					]}
-				/>
-			</View>
-
-			{/* Step content - for now we show Face Shape selector for step 1 */}
-			<View style={styles.content}>
-				<Text style={styles.question}>Face Shape</Text>
-				<FlatList
-					data={faceShapes}
-					keyExtractor={(i) => i.id}
-					horizontal
-					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={{ paddingHorizontal: 16 }}
-					renderItem={({ item }) => {
-						const isSelected = selectedFace === item.id;
-						return (
-							<TouchableOpacity
-								onPress={() => onSelectFace(item.id)}
-								style={[
-									styles.faceCard,
-									isSelected && styles.faceSelected,
-								]}
-								accessibilityLabel={`Select ${item.label} face shape`}
-							>
-								<Animated.View
-									style={{
-										transform: [
-											{ scale: isSelected ? scale : 1 },
-										],
-									}}
+			<View style={styles.container}>
+				{/* Step content - for now we show Face Shape selector for step 1 */}
+				<View style={styles.content}>
+					<Text style={styles.question}>Choose your face shape</Text>
+					<FlatList
+						data={faceShapes}
+						keyExtractor={(i) => i.id}
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={{ paddingHorizontal: 16 }}
+						renderItem={({ item }) => {
+							const isSelected = selectedFace === item.id;
+							return (
+								<TouchableOpacity
+									onPress={() => onSelectFace(item.id)}
+									style={[
+										styles.faceCard,
+										isSelected && styles.faceSelected,
+									]}
+									accessibilityLabel={`Select ${item.label} face shape`}
 								>
-									<Image
-										source={item.src}
-										style={styles.faceImage}
-									/>
-									<Text
-										style={[
-											styles.faceLabel,
-											isSelected && { color: "#fff" },
-										]}
+									<Animated.View
+										style={{
+											transform: [
+												{
+													scale: isSelected
+														? scale
+														: 1,
+												},
+											],
+										}}
 									>
-										{item.label}
-									</Text>
-								</Animated.View>
-							</TouchableOpacity>
-						);
-					}}
-				/>
-			</View>
+										<Image
+											source={item.src}
+											style={styles.faceImage}
+										/>
+										<Text
+											style={[
+												styles.faceLabel,
+												isSelected && { color: "#fff" },
+											]}
+										>
+											{item.label}
+										</Text>
+									</Animated.View>
+								</TouchableOpacity>
+							);
+						}}
+					/>
+					<View style={styles.textBoxAI}>
+						<Image
+							source={require("../../assets/images/iconAI.png")}
+							style={styles.icon}
+							resizeMode="contain"
+						/>
+						<Text>Some AI Generated Text</Text>
+					</View>
+				</View>
 
-			<View style={styles.footer}>
-				<TouchableOpacity
-					style={[
-						styles.continueBtn,
-						{ opacity: selectedFace ? 1 : 0.6 },
-					]}
-					disabled={!selectedFace}
-					onPress={() => {
-						setStep(2);
-						router.push("/screens/PreferredLookScreen");
-					}}
-				>
-					<Text style={styles.continueText}>Continue</Text>
-				</TouchableOpacity>
+				<View style={styles.footer}>
+					<TouchableOpacity
+						style={[
+							styles.continueBtn,
+							{ opacity: selectedFace ? 1 : 0.6 },
+						]}
+						disabled={!selectedFace}
+						onPress={() => {
+							setStep(2);
+							router.push("/screens/PreferredLookScreen");
+						}}
+					>
+						<Text style={styles.continueText}>Continue</Text>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.progressBar}>
+					<View
+						style={[
+							styles.progressFill,
+							{ width: `${(step / 3) * 100}%` },
+						]}
+					/>
+				</View>
 			</View>
-		</View>
+		</>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: { flex: 1, backgroundColor: "#0f1115", paddingTop: 48 },
 	header: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		paddingHorizontal: 20,
-		marginBottom: 8,
+		height: 60,
+		alignItems: "center",
 	},
+	container: {
+		flex: 1,
+		backgroundColor: "#0f1115",
+		padding: 20,
+	},
+
 	headerText: { color: "#fff", fontSize: 20, fontWeight: "700" },
 	progressText: { color: "#9ca3af" },
 	progressBar: {
@@ -168,7 +184,27 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 	},
 	progressFill: { height: "100%", backgroundColor: "#7c3aed" },
-	content: { marginTop: 20 },
+	content: { flex: 1, marginTop: 20 },
+	textBoxAI: {
+		width: "100%",
+		maxWidth: 420,
+		borderRadius: 8,
+		padding: 24,
+		backgroundColor: "#0f172a", // slate-900
+		alignItems: "center",
+		shadowColor: "#000",
+		shadowOffset: {
+			width: 0,
+			height: 10,
+		},
+		shadowOpacity: 0.1,
+		shadowRadius: 15,
+		elevation: 10,
+	},
+	icon: {
+		width: 60,
+		height: 60,
+	},
 	question: {
 		color: "#d1d5db",
 		fontSize: 16,
@@ -176,10 +212,10 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 	},
 	faceCard: {
-		width: 120,
-		height: 160,
+		width: 150,
+		height: 150,
 		backgroundColor: "#09090b",
-		borderRadius: 12,
+		borderRadius: 24,
 		marginRight: 12,
 		alignItems: "center",
 		justifyContent: "center",
@@ -187,8 +223,8 @@ const styles = StyleSheet.create({
 	},
 	faceSelected: { borderWidth: 3, borderColor: "#7c3aed" },
 	faceImage: {
-		width: 64,
-		height: 64,
+		width: 100,
+		height: 100,
 		resizeMode: "contain",
 		marginBottom: 10,
 	},
