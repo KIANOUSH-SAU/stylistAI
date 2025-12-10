@@ -1,3 +1,4 @@
+import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -28,10 +29,34 @@ export default function LoginScreen() {
 		if (response?.type === "success") {
 			const { authentication } = response;
 			console.log("Success:", authentication);
-			// Navigate on success
 			router.push("/screens/CurrentLookScreen");
 		}
 	}, [response]);
+
+	const [githubRequest, githubResponse, promptGithubAsync] = useAuthRequest(
+		{
+			clientId: "Ov23li27Ps4p0Jh0PUQE",
+			scopes: ["read:user", "user:email"],
+			redirectUri: makeRedirectUri({
+				scheme: "stylistai",
+			}),
+		},
+		{
+			authorizationEndpoint: "https://github.com/login/oauth/authorize",
+			tokenEndpoint: "https://github.com/login/oauth/access_token",
+			revocationEndpoint:
+				"https://github.com/settings/connections/applications/Ov23li27Ps4p0Jh0PUQE",
+		}
+	);
+
+	useEffect(() => {
+		if (githubResponse?.type === "success") {
+			const { code } = githubResponse.params;
+			console.log("GitHub Code:", code);
+			// Exchange code for token on your backend or via a proxy
+			router.push("/screens/CurrentLookScreen");
+		}
+	}, [githubResponse]);
 
 	return (
 		<View style={styles.container}>
@@ -65,23 +90,35 @@ export default function LoginScreen() {
 					}}
 					accessibilityLabel="Continue with Google"
 				>
+					<Image
+						source={require("../../assets/images/google.png")}
+						alt="Google Logo"
+						style={styles.icon}
+						resizeMode="contain"
+					/>
 					<Text style={[styles.buttonText, styles.buttonTextPrimary]}>
 						Continue with Google
 					</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity
-					style={[styles.button, styles.buttonSecondary]}
+					style={[styles.button, styles.buttonGithub]}
+					disabled={!githubRequest}
 					onPress={() => {
-						// TODO: wire up GitHub sign-in provider
-						router.push("/screens/CurrentLookScreen");
+						promptGithubAsync();
 					}}
 					accessibilityLabel="Sign in with GitHub"
 				>
+					<Image
+						source={require("../../assets/images/github.png")}
+						alt="Github Logo"
+						style={styles.icon}
+						resizeMode="contain"
+					/>
 					<Text
 						style={[styles.buttonText, styles.buttonTextSecondary]}
 					>
-						Sign in with GitHub
+						Continue with GitHub
 					</Text>
 				</TouchableOpacity>
 
@@ -153,13 +190,24 @@ const styles = StyleSheet.create({
 		paddingVertical: 12,
 		marginBottom: 12,
 		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "center",
+		gap: 10,
 	},
 	buttonPrimary: {
 		backgroundColor: "#f8fafc", // slate-50
 		marginBottom: 12,
 	},
+	icon: {
+		width: 20,
+		height: 20,
+	},
 	buttonSecondary: {
 		backgroundColor: "#24292e",
+		marginBottom: 8,
+	},
+	buttonGithub: {
+		backgroundColor: "#4e0082ff",
 		marginBottom: 8,
 	},
 	buttonText: {
