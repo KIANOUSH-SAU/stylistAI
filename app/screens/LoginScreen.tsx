@@ -1,6 +1,9 @@
+import * as Google from "expo-auth-session/providers/google";
 import { useRouter } from "expo-router";
-import React from "react";
+import * as WebBrowser from "expo-web-browser";
+import React, { useEffect } from "react";
 import {
+	Image,
 	Pressable,
 	StatusBar,
 	StyleSheet,
@@ -9,8 +12,26 @@ import {
 	View,
 } from "react-native";
 
-export default function LoginScreen(): React.JSX.Element {
+WebBrowser.maybeCompleteAuthSession();
+
+export default function LoginScreen() {
 	const router = useRouter();
+
+	const [request, response, promptAsync] = Google.useAuthRequest({
+		// Use the Web Client ID for Expo Go / Web
+		clientId:
+			"836157799384-c9msnh8u4fvhphkvbrevavkuf10ti98d.apps.googleusercontent.com",
+		// For native (if you ever build it), you'd add iosClientId / androidClientId here
+	});
+
+	useEffect(() => {
+		if (response?.type === "success") {
+			const { authentication } = response;
+			console.log("Success:", authentication);
+			// Navigate on success
+			router.push("/screens/CurrentLookScreen");
+		}
+	}, [response]);
 
 	return (
 		<View style={styles.container}>
@@ -22,27 +43,25 @@ export default function LoginScreen(): React.JSX.Element {
 
 			<View style={styles.card}>
 				<View style={styles.logoContainer}>
-					{/* <Image
-						source={require("../../assets/logo.png")}
+					<Image
+						source={require("../../assets/images/logo.png")}
 						alt="stylistAI logo"
 						style={styles.logo}
 						resizeMode="contain"
-					/> */}
+					/>
 				</View>
 
 				<Text style={styles.title}>Start Your Style Journey</Text>
 
 				<Text style={styles.subtitle}>
-					Personalized styles powered by AI — quick, private, and
-					tailored to you.
+					Personalized styles powered by AI
 				</Text>
 
-				{/* Full-width social sign-in buttons */}
 				<TouchableOpacity
 					style={[styles.button, styles.buttonPrimary]}
+					disabled={!request}
 					onPress={() => {
-						// TODO: wire up Google sign-in provider
-						router.push("/screens/CurrentLookScreen");
+						promptAsync();
 					}}
 					accessibilityLabel="Continue with Google"
 				>
