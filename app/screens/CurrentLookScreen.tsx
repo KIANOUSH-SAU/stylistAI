@@ -1,6 +1,7 @@
+import getText from "@/api/textGeneratorAPI";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
 	Animated,
 	FlatList,
@@ -46,6 +47,7 @@ const faceShapes = [
 
 export default function CurrentLookScreen() {
 	const [step, setStep] = useState(1);
+	const [aiText, setAiText] = useState("");
 	const [selectedFace, setSelectedFace] = useState<string | null>(null);
 	const scale = useRef(new Animated.Value(1)).current;
 	const router = useRouter();
@@ -66,7 +68,9 @@ export default function CurrentLookScreen() {
 			}),
 		]).start();
 	}
-
+	useEffect(() => {
+		getText().then((text) => setAiText(text));
+	}, []);
 	return (
 		<>
 			<View style={styles.header}>
@@ -128,9 +132,11 @@ export default function CurrentLookScreen() {
 							style={styles.icon}
 							resizeMode="contain"
 						/>
-						<Text>Some AI Generated Text</Text>
+						<Text style={styles.textBoxText}>{aiText}</Text>
 					</View>
 				</View>
+
+				<View style={{ flex: 1 }} />
 
 				<View style={styles.footer}>
 					<TouchableOpacity
@@ -184,12 +190,15 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 	},
 	progressFill: { height: "100%", backgroundColor: "#7c3aed" },
-	content: { flex: 1, marginTop: 20 },
+	content: { marginTop: 30 },
 	textBoxAI: {
 		width: "100%",
 		maxWidth: 420,
 		borderRadius: 8,
-		padding: 24,
+		borderWidth: 1,
+		borderStyle: "dashed",
+		borderColor: "gray",
+		padding: 10,
 		backgroundColor: "#0f172a", // slate-900
 		alignItems: "center",
 		shadowColor: "#000",
@@ -200,7 +209,15 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.1,
 		shadowRadius: 15,
 		elevation: 10,
+		flexDirection: "row",
+		justifyContent: "flex-start",
+		marginTop: 20,
 	},
+	textBoxText: {
+		color: "#ffffffff",
+		fontWeight: "300",
+	},
+
 	icon: {
 		width: 60,
 		height: 60,
