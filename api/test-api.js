@@ -8,6 +8,9 @@ if (typeof fetch === 'undefined') {
     global.fetch = require('node-fetch');
 }
 
+// WARNING: This API key appears to be a placeholder or demo key.
+// Replace with your own API key from https://makersuite.google.com/app/apikey
+// For production, use environment variables: process.env.GEMINI_API_KEY
 const GEMINI_API_KEY = "AIzaSyD8btTnK6gDmGo7RwLEGE3rUZ4f1BqQrcA";
 const PROMPT = "Say hello";
 
