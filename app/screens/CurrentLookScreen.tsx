@@ -47,7 +47,7 @@ const faceShapes = [
 
 export default function CurrentLookScreen() {
 	const [step, setStep] = useState(1);
-	const [aiText, setAiText] = useState("");
+	const [aiText, setAiText] = useState("Loading style tip...");
 	const [selectedFace, setSelectedFace] = useState<string | null>(null);
 	const scale = useRef(new Animated.Value(1)).current;
 	const router = useRouter();
@@ -69,7 +69,16 @@ export default function CurrentLookScreen() {
 		]).start();
 	}
 	useEffect(() => {
-		getText().then((text) => setAiText(text));
+		console.log("CurrentLookScreen: Fetching AI text...");
+		getText()
+			.then((text) => {
+				console.log("CurrentLookScreen: Received text:", text);
+				setAiText(text);
+			})
+			.catch((error) => {
+				console.error("CurrentLookScreen: Error fetching text:", error);
+				setAiText("Style tip unavailable");
+			});
 	}, []);
 	return (
 		<>
